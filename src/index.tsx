@@ -23,7 +23,7 @@ interface BoardProps {}
 
 interface BoardState {
   symbols: Array<Symbol>;
-  step_idx: number;
+  stepIdx: number;
 }
 
 class Board extends React.Component<BoardProps, BoardState> {
@@ -31,7 +31,7 @@ class Board extends React.Component<BoardProps, BoardState> {
     super(props);
     this.state = {
       symbols: Array<Symbol>(9).fill(''),
-      step_idx: 0,
+      stepIdx: 0,
     };
   }
 
@@ -41,12 +41,12 @@ class Board extends React.Component<BoardProps, BoardState> {
     if (symbols[i] !== '') {
       return;
     }
-    if (this.state.step_idx % 2 === 0) {
+    if (this.state.stepIdx % 2 === 0) {
       symbols[i] = 'X';
     } else {
       symbols[i] = 'O';
     }
-    this.setState({ symbols: symbols, step_idx: this.state.step_idx + 1 });
+    this.setState({ symbols: symbols, stepIdx: this.state.stepIdx + 1 });
   }
 
   renderSquare(i: number) {
@@ -58,8 +58,12 @@ class Board extends React.Component<BoardProps, BoardState> {
     );
   }
 
+  nextPlayer() {
+    return this.state.stepIdx % 2 === 0 ? 'X' : 'O';
+  }
+
   render() {
-    const status = 'Next player: X';
+    const status = 'Next player: ' + this.nextPlayer();
 
     return (
       <div>
