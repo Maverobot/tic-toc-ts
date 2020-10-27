@@ -9,21 +9,39 @@ interface SquareProps {
   onClick: () => void;
 }
 
-class Square extends React.Component<SquareProps> {
-  render() {
-    return (
-      <button className="square" onClick={() => this.props.onClick()}>
-        {this.props.symbol}
-      </button>
-    );
+function Square(props: SquareProps) {
+  return (
+    <button className="square" onClick={() => props.onClick()}>
+      {props.symbol}
+    </button>
+  );
+}
+
+function calculateWinner(squares: Array<Symbol>) {
+  const lines = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+  for (let i = 0; i < lines.length; i++) {
+    const [a, b, c] = lines[i];
+    if (squares[a] && squares[a] === squares[b] && squares[a] === squares[c]) {
+      return squares[a];
+    }
   }
+  return null;
 }
 
 interface BoardProps {}
 
 interface BoardState {
   symbols: Array<Symbol>;
-  stepIdx: number;
+  xIsNext: boolean;
 }
 
 class Board extends React.Component<BoardProps, BoardState> {
@@ -31,22 +49,18 @@ class Board extends React.Component<BoardProps, BoardState> {
     super(props);
     this.state = {
       symbols: Array<Symbol>(9).fill(''),
-      stepIdx: 0,
+      xIsNext: true,
     };
   }
 
   handleClick(i: number) {
     console.log('handleClick: ' + i);
     const symbols = this.state.symbols.slice();
-    if (symbols[i] !== '') {
+    if (calculateWinner(this.state.symbols) || symbols[i]) {
       return;
     }
-    if (this.state.stepIdx % 2 === 0) {
-      symbols[i] = 'X';
-    } else {
-      symbols[i] = 'O';
-    }
-    this.setState({ symbols: symbols, stepIdx: this.state.stepIdx + 1 });
+    symbols[i] = this.state.xIsNext ? 'X' : 'O';
+    this.setState({ symbols: symbols, xIsNext: !this.state.xIsNext });
   }
 
   renderSquare(i: number) {
@@ -58,12 +72,14 @@ class Board extends React.Component<BoardProps, BoardState> {
     );
   }
 
-  nextPlayer() {
-    return this.state.stepIdx % 2 === 0 ? 'X' : 'O';
-  }
-
   render() {
-    const status = 'Next player: ' + this.nextPlayer();
+    const winner = calculateWinner(this.state.symbols);
+    let status: string;
+    if (winner) {
+      status = 'Winner: ' + winner;
+    } else {
+      status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+    }
 
     return (
       <div>
